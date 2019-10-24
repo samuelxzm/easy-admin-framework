@@ -1,56 +1,74 @@
 <template>
   <div class="tagview">
-    <ul>
-      <li
-        v-for="tag in visitedViews"
-        :key="tag.path"
-        :class="isActive(tag) ? 'active' : ''"
-        @click.middle.native="closeSelectedTag(tag)"
-        @click.prevent.native="openMenu(tag, $event)"
-      >
-        <router-link
-          ref="tag"
-          :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
-          tag="span"
-          class="tags-view-item"
+    <template v-if="$store.state.settings.tagsView">
+      <ul>
+        <li
+          v-for="tag in visitedViews"
+          :key="tag.path"
+          :class="isActive(tag) ? 'active' : ''"
+          @click.middle.native="closeSelectedTag(tag)"
+          @click.prevent.native="openMenu(tag, $event)"
         >
-          {{ tag.name }}
-          <span
-            v-if="!tag.meta.affix"
-            class="el-icon-close"
-            @click.prevent.stop="closeSelectedTag(tag)"
-          />
-        </router-link>
-      </li>
-    </ul>
-    <el-dropdown style="position:absolute;right:0;top:-7px;margin:0 15px;">
-      <el-button class="el-dropdown-link ea_header_options" size="medium" type="text">
-        <eaIcon icon-class="close" />
-      </el-button>
-      <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item @click.native="closeOthersTags()">关闭其他</el-dropdown-item>
-        <el-dropdown-item @click.native="closeAllTags()">关闭全部</el-dropdown-item>
-        <!-- <el-dropdown-item @click="refreshSelectedTag()">刷新</el-dropdown-item> -->
-      </el-dropdown-menu>
-    </el-dropdown>
+          <router-link
+            ref="tag"
+            :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
+            tag="span"
+            class="tags-view-item"
+          >
+            {{ tag.name }}
+            <span
+              v-if="!tag.meta.affix"
+              class="el-icon-close"
+              @click.prevent.stop="closeSelectedTag(tag)"
+            />
+          </router-link>
+        </li>
+      </ul>
+      <el-dropdown style="position:absolute;right:0;top:-7px;margin:0 15px;">
+        <el-button class="el-dropdown-link ea_header_options" size="medium" type="text">
+          <eaIcon icon-class="close" />
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item @click.native="closeOthersTags()">关闭其他</el-dropdown-item>
+          <el-dropdown-item @click.native="closeAllTags()">关闭全部</el-dropdown-item>
+          <!-- <el-dropdown-item @click="refreshSelectedTag()">刷新</el-dropdown-item> -->
+        </el-dropdown-menu>
+      </el-dropdown>
+    </template>
+    <template v-else>
+      <el-breadcrumb class="app-breadcrumb" separator="/">
+        <transition-group name="breadcrumb">
+          <el-breadcrumb-item v-for="(item,index) in levelList" :key="item.path">
+            <span
+              v-if="item.redirect==='noRedirect'||index==levelList.length-1"
+              class="no-redirect"
+            >{{ item.name }}</span>
+            <a v-else @click.prevent="handleLink(item)">{{ item.name}}</a>
+          </el-breadcrumb-item>
+        </transition-group>
+      </el-breadcrumb>
+    </template>
   </div>
 </template>
 <script>
 import path from "path";
+import pathToRegexp from 'path-to-regexp'
 export default {
   name: "EaTagview",
-  computed: {
-    visitedViews() {
-      return this.$store.state.tagsView.visitedViews;
-    },
-    routes() {
-      return global.menu;
-    }
+  data() {
+    return {
+      levelList: null
+    };
   },
   watch: {
-    $route() {
+    $route(route) {
       this.addTags();
       this.moveToCurrentTag();
+      // if you go to the redirect page, do not update the breadcrumbs
+      if (route.path.startsWith("/redirect/")) {
+        return;
+      }
+      this.getBreadcrumb();
     },
     visible(value) {
       if (value) {
@@ -60,11 +78,63 @@ export default {
       }
     }
   },
+  created() {
+    this.getBreadcrumb();
+  },
+  computed: {
+    visitedViews() {
+      return this.$store.state.tagsView.visitedViews;
+    },
+    routes() {
+      return global.menu;
+    }
+  },
   mounted() {
     this.initTags();
     this.addTags();
   },
   methods: {
+    getBreadcrumb() {
+      // only show routes with meta.title
+      
+      let matched = this.$route.matched.filter(
+        item => item.name
+      );
+      const first = matched[0];
+      // if (!this.isDashboard(first)) {
+      //   matched = [{ path: "/dashboard", name:"首页" }].concat(
+      //     matched
+      //   );
+      // }
+
+      this.levelList = matched.filter(
+        item => item.name !== false
+      );
+    },
+    isDashboard(route) {
+      const name = route && route.name;
+      if (!name) {
+        return false;
+      }
+      return (
+        name.trim().toLocaleLowerCase() === "Dashboard".toLocaleLowerCase()
+      );
+    },
+    pathCompile(path) {
+      // To solve this problem https://github.com/PanJiaChen/vue-element-admin/issues/561
+      const { params } = this.$route;
+      var toPath = pathToRegexp.compile(path);
+      return toPath(params);
+    },
+    handleLink(item) {
+      const { redirect, path } = item;
+      if (redirect) {
+        this.$router.push(redirect);
+        return;
+      }
+      this.$router.push(this.pathCompile(path));
+    },
+
     isActive(route) {
       return route.path === this.$route.path;
     },
@@ -197,8 +267,7 @@ export default {
   }
 }
 
-.ea_header_options{
+.ea_header_options {
   font-size: 18px;
 }
-
 </style>

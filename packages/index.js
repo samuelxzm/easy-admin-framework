@@ -3,6 +3,7 @@ import Layout from "./layout"
 import Header from "./header"
 import Tagview from "./tagview"
 import TagviewStore from './tagview/src/store'
+import PagesettingStore from './pagesetting/src/store'
 import RouterSet from "./routerset"
 import SvgIcon from './svgicon'
 import EaFullscreen from './fullscreen'
@@ -38,5 +39,6 @@ export default {
     install,
     RouterSet,
     TagviewStore,
+    PagesettingStore,
     ...components
 }

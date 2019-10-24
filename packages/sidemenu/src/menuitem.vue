@@ -1,7 +1,7 @@
 <template>
   <el-submenu v-if="'children' in router" :index="basepath+'/'+router.path">
     <template slot="title">
-      <i :class="router.meta.icon"></i>
+      <ea-icon :icon-class="router.meta.icon" /> 
       <span>{{router.name}}</span>
     </template>
     <menu-item
@@ -12,7 +12,7 @@
     />
   </el-submenu>
   <el-menu-item v-else :index="basepath+'/'+router.path">
-    <i :class="router.meta.icon"></i>
+    <ea-icon :icon-class="router.meta.icon" /> 
     <span slot="title">{{router.name}}</span>
   </el-menu-item>
 </template>

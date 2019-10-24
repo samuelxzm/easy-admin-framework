@@ -1,10 +1,12 @@
 <template>
   <el-container>
     <el-aside class="ea_leftcontainer" width="200px">
+      <div v-show="$store.state.settings.sidebarLogo">
       <slot name="logo"/>
+      </div>
       <slot name="sidemenu" />
     </el-aside>
-    <el-container>
+    <el-container :class="$store.state.settings.fixedHeader?'':'no_headerfix'">
       <el-header style="text-align: right; font-size: 12px">
         <slot name="header" />
       </el-header>
@@ -34,5 +36,10 @@ body,
 }
 .el-header{
   border-bottom: #e5e5e5 solid 1px;
+}
+.el-container.no_headerfix{
+  display: block;
+    height: 100%;
+    overflow: auto;
 }
 </style>

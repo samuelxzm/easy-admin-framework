@@ -6,7 +6,7 @@
       "component": "Main",
       "redirect":"/dashboard",
       "meta": {
-        "icon": "delete"
+        "icon": "code"
       },
       "children": [
         {
@@ -14,8 +14,9 @@
           "name": "首页",
           "component": "Dashboard",
           "meta": {
-            "icon": "el-icon-delete",
+            "icon": "code",
             "affix":true
+       
           }
         },
         {
@@ -23,7 +24,7 @@
           "name":"路由配置",
           "component":"RouterSet",
           "meta":{
-            "icon":"el-icon-delete"
+            "icon":"menu"
           }
         },
         {
@@ -31,7 +32,7 @@
           "name": "帮助",
           "component": "RouterView",
           "meta": {
-            "icon": "el-icon-delete"
+            "icon": "help"
           },
           "children": [
             {
@@ -39,7 +40,7 @@
               "name": "帮助",
               "component": "Help",
               "meta": {
-                "icon": "el-icon-delete"
+                "icon": "help"
               }
             },
             {
@@ -47,7 +48,7 @@
               "name": "关于",
               "component": "About",
               "meta": {
-                "icon": "el-icon-delete"
+                "icon": "code"
               }
             }
           ]
@@ -59,7 +60,7 @@
       "name": "登陆",
       "component": "Login",
       "meta": {
-        "icon": "el-icon-delete"
+        "icon": "code"
       }
     }
   ]
